@@ -781,6 +781,6 @@ export const convert: Converter = async rawData => {
   ];
 };
 
-function isReferenceObject(items: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject) {
+function isReferenceObject(items: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject): items is OpenAPIV3.ReferenceObject {
   return Object.keys(items).includes('$ref');
 }
