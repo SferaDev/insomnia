@@ -515,9 +515,25 @@ const generateParameterExample = (schema: OpenAPIV3.SchemaObject | string) => {
 
       if (properties) {
         for (const propertyName of Object.keys(properties)) {
-          example[propertyName] = generateParameterExample(
-            properties[propertyName] as OpenAPIV3.SchemaObject,
-          );
+          const propertySchema = properties[
+            propertyName
+          ] as OpenAPIV3.SchemaObject;
+
+          if (
+            propertySchema.type === "array" &&
+            !isReferenceObject(propertySchema.items) &&
+            propertySchema.items.type === "object" &&
+            propertySchema.items.title === schema.title
+          ) {
+            console.log("DEBUG: Recursion found on element array");
+          } else if (
+            propertySchema.type === "object" &&
+            propertySchema.title === schema.title
+          ) {
+            console.log("DEBUG: Recursion found on element object");
+          } else {
+            example[propertyName] = generateParameterExample(propertySchema);
+          }
         }
       }
 
@@ -764,3 +780,7 @@ export const convert: Converter = async rawData => {
     ...endpoints,
   ];
 };
+
+function isReferenceObject(items: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject): items is OpenAPIV3.ReferenceObject {
+  return Object.keys(items).includes('$ref');
+}
